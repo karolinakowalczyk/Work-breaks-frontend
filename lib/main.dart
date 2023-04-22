@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
+import 'dart:developer' as developer;
 
 void main() {
   runApp(const MyApp());
@@ -48,17 +51,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  static const metawearPlatform = MethodChannel('com.example.ppiwd_work_breaks_frontend/metawear');
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    metawearPlatform.setMethodCallHandler(metaWearCallback);
+  }
+
+  Future<void> metaWearCallback(MethodCall call) async {
+    switch (call.method) {
+      case "putAccel":
+        developer.log(call.arguments['data'], name: 'ppiwd/accel');
+        break;
+      case "putGyro":
+        developer.log(call.arguments['data'], name: 'ppiwd/gyro');
+        break;
+    }
+  }
+
+  void _connectMetaWear() async {
+    try {
+      await metawearPlatform.invokeMethod("connect", {'mac': "F7:EA:A1:28:AE:F9"});
+    } on PlatformException catch (e) {
+      developer.log('failed to connect: ${e.message}');
+    }
+  }
+
+  void _disconectMetaWear() async {
+    try {
+      await metawearPlatform.invokeMethod("disconnect");
+    } on PlatformException catch (e) {
+      developer.log('failed to disconnect: ${e.message}');
+    }
   }
 
   @override
@@ -75,41 +100,21 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+      body: Center(child: Column(children: <Widget>[  
+            Container(  
+              margin: const EdgeInsets.all(25),  
+              child: TextButton(  
+                onPressed: _connectMetaWear,  
+                child: const Text('Connect'),  
+              ),  
+            ),  
+            Container(  
+              margin: const EdgeInsets.all(25),  
+              child: TextButton(  
+                onPressed: _disconectMetaWear,  
+                child: const Text('Disconnect'),  
+              ),  
+            ),  
+          ] )));
   }
 }

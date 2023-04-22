@@ -4,6 +4,7 @@
         android:label="ppiwd_work_breaks_frontend"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+       <service android:name="com.mbientlab.metawear.android.BtleService" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
