@@ -15,7 +15,8 @@ class MetaWearRouteBuilder(private var channel: MethodChannel,
             try {
                 val result = data.value(aClass)
                 Handler(Looper.getMainLooper()).post {
-                    channel.invokeMethod(callbackName, mapOf("data" to result.toString()))
+                    channel.invokeMethod(callbackName, mapOf("data" to result.toString()
+                    , "timestamp" to System.currentTimeMillis()))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

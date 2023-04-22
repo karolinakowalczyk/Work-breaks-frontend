@@ -62,10 +62,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> metaWearCallback(MethodCall call) async {
     switch (call.method) {
       case "putAccel":
-        developer.log(call.arguments['data'], name: 'ppiwd/accel');
+        developer.log('[${call.arguments['timestamp']}] accel: ${call.arguments['data']}', name: 'ppiwd/accel');
         break;
       case "putGyro":
-        developer.log(call.arguments['data'], name: 'ppiwd/gyro');
+        developer.log('[${call.arguments['timestamp']}] gyro: ${call.arguments['data']}', name: 'ppiwd/gyro');
         break;
     }
   }
