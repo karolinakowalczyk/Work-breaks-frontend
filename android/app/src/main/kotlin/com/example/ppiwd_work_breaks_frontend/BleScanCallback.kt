@@ -10,7 +10,8 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import io.flutter.plugin.common.MethodChannel
 
-class MetaWearBleScanCallback(private val context: Context, private val channel: MethodChannel) : ScanCallback() {
+class BleScanCallback(private val context: Context, private val channel: MethodChannel,
+                      private val callbackName: String) : ScanCallback() {
     private val TAG = "ppiwd/MetaWearBleScanCallback"
     override fun onScanResult(callbackType: Int, result: ScanResult) {
         super.onScanResult(callbackType, result)
@@ -18,7 +19,7 @@ class MetaWearBleScanCallback(private val context: Context, private val channel:
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "missing BLUETOOTH_READ permission")
         }
-        channel.invokeMethod("putDevice", mapOf(
+        channel.invokeMethod(callbackName, mapOf(
                 "mac" to result.device.address,
                 "name" to (result.device.name?: "[no name]")))
 

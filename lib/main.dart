@@ -49,8 +49,17 @@ class _MyHomePageState extends State<MyHomePage> {
       case "putGyro":
         developer.log('[${call.arguments['timestamp']}] gyro: ${call.arguments['data']}', name: 'ppiwd/gyro');
         break;
-      case "putDevice":
+      case "putBleDevice":
         developer.log('device: ${call.arguments['name']} [${call.arguments['mac']}]', name: 'ppiwd/gyro');
+        break;
+      case "connected":
+        developer.log('connected: ${call.arguments['mac']}', name: 'ppiwd/gyro');
+        break;
+      case "disconnected":
+        developer.log('disconnected: ${call.arguments['mac']}', name: 'ppiwd/gyro');
+        break;
+      case "connectFailure":
+        developer.log('connectFailure: ${call.arguments['mac']}', name: 'ppiwd/gyro');
         break;
     }
   }
@@ -71,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _scanMetaWear() async {
+  void _scanBle() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
       Permission.bluetooth,
@@ -82,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
       developer.log('bluetooth permission is required');
     }
     try {
-      await metawearPlatform.invokeMethod("scan");
+      await metawearPlatform.invokeMethod("scan", {'period': 5000});
     } on PlatformException catch (e) {
       developer.log('failed to scan: ${e.message}');
     }
@@ -112,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(  
               margin: const EdgeInsets.all(25),  
               child: TextButton(  
-                onPressed: _scanMetaWear,  
+                onPressed: _scanBle,  
                 child: const Text('Scan'),  
               ),  
             ),  

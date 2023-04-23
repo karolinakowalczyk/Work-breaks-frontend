@@ -22,24 +22,31 @@ import com.mbientlab.metawear.module.GyroBmi160
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import java.lang.RuntimeException
 
 
 class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandler {
     private val TAG = "ppiwd/MetaWearMethodCallHandler"
+    private val PUT_ACCEL_CALBACK_SLUG = "putAccel"
+    private val PUT_GYRO_CALLBACK_SLUG = "putGyro"
+    private val PUT_BLE_DEVICE_CALBACK_SLUG = "putBleDevice"
+    private val CONNECTED_CALBACK_SLUG = "connected"
+    private val DISCONNECTED_CALBACK_SLUG = "disconnected"
+    private val CONNECT_FAILURE_CALBACK_SLUG = "connectFailure"
+    private val BLE_SCAN_PERIOD: Long = 10000
     private lateinit var service: LocalBinder
     private lateinit var btManager: BluetoothManager
     private lateinit var board: MetaWearBoard
     private lateinit var accelerometer: Accelerometer
     private lateinit var gyroBmi160: GyroBmi160
     private lateinit var channel: MethodChannel
-    private val BLE_SCAN_PERIOD: Long = 10000
     private var bleScanActive = false
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "connect" -> connect(call.argument<String>("mac") ?: return)
             "disconnect" -> disconnect()
-            "scan" -> scan()
+            "scan" -> scan(call.argument<Int>("period")?.toLong() ?: BLE_SCAN_PERIOD)
         }
     }
 
@@ -53,14 +60,8 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     }
 
     private fun connect(mac: String) {
-        if (!::service.isInitialized || !::btManager.isInitialized) {
-            Log.i(TAG, "bt service is not initialized")
-            return
-        }
-        if (!::channel.isInitialized) {
-            Log.i(TAG, "channel is not initialized")
-            return
-        }
+        requireServiceInitialized()
+        requireChannelInitialized()
         if (::board.isInitialized && board.isConnected) {
             Log.i(TAG, "board already connected")
             return
@@ -69,12 +70,19 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         board = service.getMetaWearBoard(remoteDevice)
         board.connectAsync().onSuccessTask(this::configureAccel)
                 .onSuccessTask(this::configureGyro)
+                .onSuccess {
+                    handleBoardConnected(board)
+                }
                 .continueWith<Void> { task ->
                     if (task.isFaulted) {
+                        handleBoardConnectFailure(board)
                         Log.w(TAG, "Failed to configure app", task.error)
                     }
                     null
                 }
+        board.onUnexpectedDisconnect {
+            handleBoardDisconnected(board)
+        }
     }
 
     private fun configureAccel(task: Task<Void>): Task<Route>? {
@@ -85,7 +93,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         accelerometer.configure()
                 .odr(50f)
                 .commit()
-        return accelerometer.acceleration().addRouteAsync(AccelMetaWearRouteBuilder(channel, "putAccel"))
+        return accelerometer.acceleration().addRouteAsync(AccelMetaWearRouteBuilder(channel, PUT_ACCEL_CALBACK_SLUG))
     }
 
     private fun configureGyro(task: Task<Route>): Task<Route>? {
@@ -96,7 +104,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         gyroBmi160.configure()
                 .odr(Gyro.OutputDataRate.ODR_50_HZ)
                 .commit()
-        return gyroBmi160.angularVelocity().addRouteAsync(GyroMetaWearRouteBuilder(channel, "putGyro"))
+        return gyroBmi160.angularVelocity().addRouteAsync(GyroMetaWearRouteBuilder(channel, PUT_GYRO_CALLBACK_SLUG))
     }
 
     private fun disconnect() {
@@ -105,21 +113,15 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
             return
         }
         board.disconnectAsync().continueWith<Any> {
-            this.board.disconnectAsync()
+            handleBoardDisconnected(board)
         }
     }
 
-    private fun scan() {
-        if (!::service.isInitialized || !::btManager.isInitialized) {
-            Log.i(TAG, "bt service is not initialized")
-            return
-        }
-        if (!::channel.isInitialized) {
-            Log.i(TAG, "channel is not initialized")
-            return
-        }
+    private fun scan(period: Long) {
+        requireServiceInitialized()
+        requireChannelInitialized()
         val bleScanner = btManager.adapter.bluetoothLeScanner;
-        val bleScannerCallback = MetaWearBleScanCallback(context, channel)
+        val bleScannerCallback = BleScanCallback(context, channel, PUT_BLE_DEVICE_CALBACK_SLUG)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 Log.w(TAG, "missing BLUETOOTH_SCAN permission")
@@ -128,12 +130,46 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         Handler(Looper.getMainLooper()).postDelayed({
             bleScanner.stopScan(bleScannerCallback)
             bleScanActive = false
-        }, BLE_SCAN_PERIOD)
+        }, period)
         if (bleScanActive) {
             Log.i(TAG, "ble scan already active")
         } else {
             bleScanner.startScan(bleScannerCallback)
             bleScanActive = true
+        }
+    }
+
+    private fun handleBoardDisconnected(board: MetaWearBoard) {
+        Handler(Looper.getMainLooper()).post {
+            this.board.disconnectAsync().onSuccess {
+                channel.invokeMethod(DISCONNECTED_CALBACK_SLUG, mapOf("mac" to board.macAddress))
+            }
+        }
+    }
+
+    private fun handleBoardConnected(board: MetaWearBoard) {
+        Handler(Looper.getMainLooper()).post {
+            channel.invokeMethod(CONNECTED_CALBACK_SLUG, mapOf("mac" to board.macAddress))
+        }
+    }
+
+    private fun handleBoardConnectFailure(board: MetaWearBoard) {
+        Handler(Looper.getMainLooper()).post {
+            channel.invokeMethod(CONNECT_FAILURE_CALBACK_SLUG, mapOf("mac" to board.macAddress))
+        }
+    }
+
+
+    private fun requireServiceInitialized() {
+        if (!::service.isInitialized || !::btManager.isInitialized) {
+            throw RuntimeException("bt service is not initialized")
+        }
+    }
+
+    private fun requireChannelInitialized() {
+        if (!::channel.isInitialized) {
+            Log.i(TAG, "channel is not initialized")
+            return
         }
     }
 }
