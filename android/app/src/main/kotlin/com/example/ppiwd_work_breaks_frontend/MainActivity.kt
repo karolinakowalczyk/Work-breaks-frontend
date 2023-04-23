@@ -14,8 +14,8 @@ import io.flutter.plugin.common.MethodChannel
 
 
 class MainActivity : FlutterActivity(), ServiceConnection {
-    private val metaWearChannelSlug = "com.example.ppiwd_work_breaks_frontend/metawear"
-    private val metaWearMethodCallHandler = MetaWearMethodCallHandler();
+    private val META_WEAR_CHANNEL_SLUG = "com.example.ppiwd_work_breaks_frontend/metawear"
+    private val metaWearMethodCallHandler = MetaWearMethodCallHandler(this);
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +28,11 @@ class MainActivity : FlutterActivity(), ServiceConnection {
         applicationContext.unbindService(this)
     }
 
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, metaWearChannelSlug)
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, META_WEAR_CHANNEL_SLUG)
         metaWearMethodCallHandler.setChannel(channel)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, metaWearChannelSlug).setMethodCallHandler(metaWearMethodCallHandler)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, META_WEAR_CHANNEL_SLUG).setMethodCallHandler(metaWearMethodCallHandler)
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
