@@ -22,14 +22,13 @@ import com.mbientlab.metawear.module.GyroBmi160
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import java.lang.RuntimeException
 
 
 class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandler {
     private val TAG = "ppiwd/MetaWearMethodCallHandler"
     private val PUT_ACCEL_CALBACK_SLUG = "putAccel"
     private val PUT_GYRO_CALLBACK_SLUG = "putGyro"
-    private val PUT_BLE_DEVICE_CALBACK_SLUG = "putBleDevice"
+    private val PUT_BLE_SCANRESULT = "putBleScanResult"
     private val CONNECTED_CALBACK_SLUG = "connected"
     private val DISCONNECTED_CALBACK_SLUG = "disconnected"
     private val CONNECT_FAILURE_CALBACK_SLUG = "connectFailure"
@@ -47,6 +46,8 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
             "connect" -> connect(call.argument<String>("mac") ?: return)
             "disconnect" -> disconnect()
             "scan" -> scan(call.argument<Int>("period")?.toLong() ?: BLE_SCAN_PERIOD)
+            "startMeasurements" -> startMeasurements()
+            "stopMeasurements" -> stopMeasurements()
         }
     }
 
@@ -62,10 +63,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     private fun connect(mac: String) {
         requireServiceInitialized()
         requireChannelInitialized()
-        if (::board.isInitialized && board.isConnected) {
-            Log.i(TAG, "board already connected")
-            return
-        }
+        requireBoardDisconnected()
         val remoteDevice: BluetoothDevice = btManager.adapter.getRemoteDevice(mac)
         board = service.getMetaWearBoard(remoteDevice)
         board.connectAsync().onSuccessTask(this::configureAccel)
@@ -108,10 +106,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     }
 
     private fun disconnect() {
-        if (!::board.isInitialized || !board.isConnected) {
-            Log.w(TAG, "Board already disconnected")
-            return
-        }
+        requireBoardConnected()
         board.disconnectAsync().continueWith<Any> {
             handleBoardDisconnected(board)
         }
@@ -120,16 +115,17 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     private fun scan(period: Long) {
         requireServiceInitialized()
         requireChannelInitialized()
-        val bleScanner = btManager.adapter.bluetoothLeScanner;
-        val bleScannerCallback = BleScanCallback(context, channel, PUT_BLE_DEVICE_CALBACK_SLUG)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                Log.w(TAG, "missing BLUETOOTH_SCAN permission")
+            Log.w(TAG, "missing BLUETOOTH_SCAN permission")
             return
         }
+        val bleScanner = btManager.adapter.bluetoothLeScanner
+        val bleScannerCallback = BleScanCallback(context)
         Handler(Looper.getMainLooper()).postDelayed({
             bleScanner.stopScan(bleScannerCallback)
             bleScanActive = false
+            channel.invokeMethod(PUT_BLE_SCANRESULT, bleScannerCallback.devices)
         }, period)
         if (bleScanActive) {
             Log.i(TAG, "ble scan already active")
@@ -159,6 +155,26 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         }
     }
 
+    private fun startMeasurements() {
+        requireSensorsInitialized()
+        requireBoardConnected()
+        Log.i("starting", "starting")
+        accelerometer.acceleration().start()
+        gyroBmi160.angularVelocity().start()
+        accelerometer.start()
+        gyroBmi160.start()
+    }
+
+    private fun stopMeasurements() {
+        requireSensorsInitialized()
+        requireBoardConnected()
+        Log.i("stoping", "stoping")
+        gyroBmi160.stop()
+        accelerometer.stop()
+        gyroBmi160.angularVelocity().stop()
+        accelerometer.acceleration().stop()
+    }
+
 
     private fun requireServiceInitialized() {
         if (!::service.isInitialized || !::btManager.isInitialized) {
@@ -168,8 +184,28 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
 
     private fun requireChannelInitialized() {
         if (!::channel.isInitialized) {
-            Log.i(TAG, "channel is not initialized")
-            return
+            throw RuntimeException("channel is not initialized")
+        }
+    }
+
+    private fun requireSensorsInitialized() {
+        if (!::accelerometer.isInitialized) {
+            throw RuntimeException("accelerometer is not initialized")
+        }
+        if (!::gyroBmi160.isInitialized) {
+            throw RuntimeException("gyroscope is not initialized")
+        }
+    }
+
+    private fun requireBoardConnected() {
+        if (!::board.isInitialized || !board.isConnected) {
+            throw RuntimeException("board is disconnected")
+        }
+    }
+
+    private fun requireBoardDisconnected() {
+        if (::board.isInitialized && board.isConnected) {
+            throw RuntimeException("board is connected")
         }
     }
 }

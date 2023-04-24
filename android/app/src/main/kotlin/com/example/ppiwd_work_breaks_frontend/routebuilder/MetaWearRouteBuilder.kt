@@ -2,13 +2,14 @@ package com.example.ppiwd_work_breaks_frontend.routebuilder
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.mbientlab.metawear.builder.RouteBuilder
 import com.mbientlab.metawear.builder.RouteComponent
 import io.flutter.plugin.common.MethodChannel
 
 abstract class MetaWearRouteBuilder<T>(
-        private var channel: MethodChannel,
-        private var callbackName: String) : RouteBuilder {
+        protected var channel: MethodChannel,
+        protected var callbackName: String) : RouteBuilder {
 
     abstract val aClass: Class<T>
 

@@ -49,8 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
       case "putGyro":
         developer.log('[${call.arguments['timestamp']}] gyro: ${call.arguments['data']}', name: 'ppiwd/gyro');
         break;
-      case "putBleDevice":
-        developer.log('device: ${call.arguments['name']} [${call.arguments['mac']}]', name: 'ppiwd/gyro');
+      case "putBleScanResult":
+        ((call.arguments) as Map).forEach((key, value) {
+          developer.log('device: ${value['name']} [${value['mac']}]', name: 'ppiwd/gyro');
+        });
         break;
       case "connected":
         developer.log('connected: ${call.arguments['mac']}', name: 'ppiwd/gyro');
@@ -97,6 +99,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _startMeasurements() async {
+    try {
+      await metawearPlatform.invokeMethod("startMeasurements");
+    } on PlatformException catch (e) {
+      developer.log('failed to scan: ${e.message}');
+    }
+  }
+
+  void _stopMeasurements() async {
+    try {
+      await metawearPlatform.invokeMethod("stopMeasurements");
+    } on PlatformException catch (e) {
+      developer.log('failed to scan: ${e.message}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,23 +124,44 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(child: Column(children: <Widget>[  
             Container(  
               margin: const EdgeInsets.all(25),  
-              child: TextButton(  
+              child: ElevatedButton(  
                 onPressed: _connectMetaWear,  
-                child: const Text('Connect'),
+                child: const Text('Connect board'),
               ),  
             ),  
             Container(  
               margin: const EdgeInsets.all(25),  
-              child: TextButton(  
+              child: ElevatedButton(  
                 onPressed: _disconectMetaWear,  
-                child: const Text('Disconnect'),  
+                child: const Text('Disconnect board'),  
               ),  
             ), 
             Container(  
               margin: const EdgeInsets.all(25),  
-              child: TextButton(  
+              child: ElevatedButton(  
                 onPressed: _scanBle,  
-                child: const Text('Scan'),  
+                child: const Text('Scan ble devices'),  
+              ),  
+            ),
+            Container(  
+              margin: const EdgeInsets.all(25),  
+              child: ElevatedButton(  
+                onPressed: _startMeasurements,  
+                child: const Text('Start measurements'),  
+              ),  
+            ), 
+            Container(  
+              margin: const EdgeInsets.all(25),  
+              child: ElevatedButton(  
+                onPressed: _stopMeasurements,  
+                child: const Text('Stop measurements'),  
+              ),  
+            ),  
+            Container(  
+              margin: const EdgeInsets.all(25),  
+              child: ElevatedButton(  
+                onPressed: _stopMeasurements,  
+                child: const Text('Stop measurements'),  
               ),  
             ),  
           ] )));
