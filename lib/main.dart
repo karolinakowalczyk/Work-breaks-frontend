@@ -51,17 +51,17 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case "putBleScanResult":
         ((call.arguments) as Map).forEach((key, value) {
-          developer.log('device: ${value['name']} [${value['mac']}]', name: 'ppiwd/gyro');
+          developer.log('device: ${value['name']} [${value['mac']}]', name: 'ppiwd/ble');
         });
         break;
       case "connected":
-        developer.log('connected: ${call.arguments['mac']}', name: 'ppiwd/gyro');
+        developer.log('connected: ${call.arguments['mac']}', name: 'ppiwd/board');
         break;
       case "disconnected":
-        developer.log('disconnected: ${call.arguments['mac']}', name: 'ppiwd/gyro');
+        developer.log('disconnected: ${call.arguments['mac']}', name: 'ppiwd/board');
         break;
       case "connectFailure":
-        developer.log('connectFailure: ${call.arguments['mac']}', name: 'ppiwd/gyro');
+        developer.log('connectFailure: ${call.arguments['mac']}', name: 'ppiwd/board');
         break;
     }
   }
