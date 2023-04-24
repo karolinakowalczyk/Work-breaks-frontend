@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       await metawearPlatform.invokeMethod("startMeasurements");
     } on PlatformException catch (e) {
-      developer.log('failed to scan: ${e.message}');
+      developer.log('failed to start measurements: ${e.message}');
     }
   }
 
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       await metawearPlatform.invokeMethod("stopMeasurements");
     } on PlatformException catch (e) {
-      developer.log('failed to scan: ${e.message}');
+      developer.log('failed to stop measurements: ${e.message}');
     }
   }
 
@@ -148,13 +148,6 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ElevatedButton(  
                 onPressed: _startMeasurements,  
                 child: const Text('Start measurements'),  
-              ),  
-            ), 
-            Container(  
-              margin: const EdgeInsets.all(25),  
-              child: ElevatedButton(  
-                onPressed: _stopMeasurements,  
-                child: const Text('Stop measurements'),  
               ),  
             ),  
             Container(  
