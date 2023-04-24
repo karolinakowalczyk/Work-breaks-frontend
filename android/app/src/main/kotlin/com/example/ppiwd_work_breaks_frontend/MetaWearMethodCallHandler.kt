@@ -128,7 +128,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
             channel.invokeMethod(PUT_BLE_SCANRESULT, bleScannerCallback.devices)
         }, period)
         if (bleScanActive) {
-            Log.i(TAG, "ble scan already active")
+            Log.w(TAG, "ble scan already active")
         } else {
             bleScanner.startScan(bleScannerCallback)
             bleScanActive = true
@@ -158,7 +158,6 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     private fun startMeasurements() {
         requireSensorsInitialized()
         requireBoardConnected()
-        Log.i("starting", "starting")
         accelerometer.acceleration().start()
         gyroBmi160.angularVelocity().start()
         accelerometer.start()
@@ -168,7 +167,6 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     private fun stopMeasurements() {
         requireSensorsInitialized()
         requireBoardConnected()
-        Log.i("stoping", "stoping")
         gyroBmi160.stop()
         accelerometer.stop()
         gyroBmi160.angularVelocity().stop()
