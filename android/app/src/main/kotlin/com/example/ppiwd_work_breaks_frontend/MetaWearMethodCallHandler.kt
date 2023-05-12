@@ -18,7 +18,6 @@ import com.mbientlab.metawear.Route
 import com.mbientlab.metawear.android.BtleService.LocalBinder
 import com.mbientlab.metawear.module.Accelerometer
 import com.mbientlab.metawear.module.Gyro
-import com.mbientlab.metawear.module.GyroBmi160
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -37,7 +36,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
     private lateinit var btManager: BluetoothManager
     private lateinit var board: MetaWearBoard
     private lateinit var accelerometer: Accelerometer
-    private lateinit var gyroBmi160: GyroBmi160
+    private lateinit var gyro: Gyro
     private lateinit var channel: MethodChannel
     private var bleScanActive = false
 
@@ -98,11 +97,11 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         if (task.isFaulted) {
             return null
         }
-        gyroBmi160 = board.getModule(GyroBmi160::class.java)
-        gyroBmi160.configure()
+        gyro = board.getModule(Gyro::class.java)
+        gyro.configure()
                 .odr(Gyro.OutputDataRate.ODR_50_HZ)
                 .commit()
-        return gyroBmi160.angularVelocity().addRouteAsync(GyroMetaWearRouteBuilder(channel, PUT_GYRO_CALLBACK_SLUG))
+        return gyro.angularVelocity().addRouteAsync(GyroMetaWearRouteBuilder(channel, PUT_GYRO_CALLBACK_SLUG))
     }
 
     private fun disconnect() {
@@ -159,17 +158,17 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         requireSensorsInitialized()
         requireBoardConnected()
         accelerometer.acceleration().start()
-        gyroBmi160.angularVelocity().start()
+        gyro.angularVelocity().start()
         accelerometer.start()
-        gyroBmi160.start()
+        gyro.start()
     }
 
     private fun stopMeasurements() {
         requireSensorsInitialized()
         requireBoardConnected()
-        gyroBmi160.stop()
+        gyro.stop()
         accelerometer.stop()
-        gyroBmi160.angularVelocity().stop()
+        gyro.angularVelocity().stop()
         accelerometer.acceleration().stop()
     }
 
@@ -190,7 +189,7 @@ class MetaWearMethodCallHandler(private val context: Context) : MethodCallHandle
         if (!::accelerometer.isInitialized) {
             throw RuntimeException("accelerometer is not initialized")
         }
-        if (!::gyroBmi160.isInitialized) {
+        if (!::gyro.isInitialized) {
             throw RuntimeException("gyroscope is not initialized")
         }
     }

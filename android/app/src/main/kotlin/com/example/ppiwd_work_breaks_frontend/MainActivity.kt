@@ -14,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity(), ServiceConnection {
     private val META_WEAR_CHANNEL_SLUG = "com.example.ppiwd_work_breaks_frontend/metawear"
-    private val metaWearMethodCallHandler = MetaWearMethodCallHandler(this);
+    private val metaWearMethodCallHandler = MetaWearMethodCallHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
