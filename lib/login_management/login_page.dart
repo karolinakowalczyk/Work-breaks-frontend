@@ -7,15 +7,15 @@ import 'login_form.dart';
 import 'login_management.dart';
 import 'register_form.dart';
 
-class LoginPage extends StatefulWidget {  
-  LoginPage({super.key, required this.assign}){
+class LoginPage extends StatefulWidget {
+  LoginPage({super.key, required this.tokenClient}) {
     initManager();
   }
   late final LoginManagement _manager;
-  final void Function(TokenClient client) assign;
+  final TokenClient tokenClient;
 
   void initManager() async {
-    _manager = LoginManagement();
+    _manager = LoginManagement(tokenClient);
   }
 
   @override
@@ -41,9 +41,8 @@ class _LoginPageState extends State<LoginPage> {
       _password = password;
       _errorMsg = response ?? '';
     });
-    if(response == null) {
-      widget.assign(widget._manager.tokenManager);
-      if(context.mounted) {
+    if (response == null) {
+      if (context.mounted) {
         context.go('/sensors');
       }
     }
@@ -56,10 +55,9 @@ class _LoginPageState extends State<LoginPage> {
       _password = password;
       _errorMsg = response ?? '';
     });
-    if(response == null) {
+    if (response == null) {
       await widget._manager.validateLogin(email, password);
-      widget.assign(widget._manager.tokenManager);
-      if(context.mounted) {
+      if (context.mounted) {
         context.go('/sensors');
       }
     }
@@ -67,10 +65,10 @@ class _LoginPageState extends State<LoginPage> {
 
   void loadInitData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     List<String>? credentials = prefs.getString('credentials')?.split(',');
 
-    if(credentials != null) {
+    if (credentials != null) {
       setState(() {
         _email = credentials[0];
         _password = credentials[1];
@@ -89,28 +87,28 @@ class _LoginPageState extends State<LoginPage> {
     Widget page;
     Widget returnButton;
 
-    if(_isRegister) {
-        page = RegisterForm(
-          errorMsg: _errorMsg,
-          registerUser: ((email, password) => _register(email, password, context)),
-        );
-        returnButton = Align(
+    if (_isRegister) {
+      page = RegisterForm(
+        errorMsg: _errorMsg,
+        registerUser: ((email, password) =>
+            _register(email, password, context)),
+      );
+      returnButton = Align(
           alignment: Alignment.topRight,
           child: IconButton(
             icon: const Icon(Icons.keyboard_return),
             color: Theme.of(context).primaryColor,
             onPressed: navigate,
-          )
-        );
+          ));
     } else {
-        page = LoginForm(
-          errorMsg: _errorMsg,
-          validateLogin: ((email, password) => _logon(email, password, context)),
-          navigate: navigate,
-          initialEmail: _email ?? '',
-          initialPassword: _password ?? '',
-        );
-        returnButton = const Text('');
+      page = LoginForm(
+        errorMsg: _errorMsg,
+        validateLogin: ((email, password) => _logon(email, password, context)),
+        navigate: navigate,
+        initialEmail: _email ?? '',
+        initialPassword: _password ?? '',
+      );
+      returnButton = const Text('');
     }
 
     return Stack(
@@ -137,14 +135,18 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       returnButton,
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
-                        child: page, 
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 30.0),
+                        child: page,
                       ),
-                  ],),
+                    ],
+                  ),
                 ),
-            ],),
+              ],
+            ),
           ),
         ),
-    ],);
+      ],
+    );
   }
 }

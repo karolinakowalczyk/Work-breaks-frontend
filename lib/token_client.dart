@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 // need to change to address of server
-String hostAddress = 'http://192.168.0.10:8080';
+String hostAddress = 'http://192.168.0.17:8080';
 
 class TokenClient {
-  final _authorizationEndpoint = Uri.parse('$hostAddress/users/authentication/authenticate');
+  final _authorizationEndpoint = Uri.parse('$hostAddress/login');
 
   final _tokenHeader = 'Authorization';
   final _jsonHeader = 'Content-Type';
@@ -15,47 +15,42 @@ class TokenClient {
 
   bool get loggedOut => _credentials != null;
 
-  Future<Response> authorize(String email, String password) async {
+  Future<Response> authorize(String login, String password) async {
     var requestBody = jsonEncode({
-      'email': email,
-      'password': password,  
+      'login': login,
+      'password': password,
     });
-    return Response(jsonEncode({'noop': 'null'}), 200);
     try {
-      var response = await _client.post(_authorizationEndpoint, 
-                            headers: {_jsonHeader: 'application/json'}, body: requestBody);
-      if(response.statusCode == 200) {
+      var response = await _client.post(_authorizationEndpoint,
+          headers: {_jsonHeader: 'application/json'}, body: requestBody);
+      if (response.statusCode == 200) {
         var responseBody = jsonDecode(response.body);
-        _credentials = responseBody['accessToken'];
+        _credentials = responseBody['token'];
       }
       return response;
-    } catch(error) {
+    } catch (error) {
       return Response('{"error": "$error"}', 404);
     }
   }
 
-  Future<Response> send(BaseRequest request) async { 
-    return Response(jsonEncode({'noop': 'null'}), 200);
-
+  Future<Response> send(BaseRequest request) async {
     request.headers[_tokenHeader] = 'Bearer $_credentials';
     request.headers[_jsonHeader] = 'application/json';
-
     var response = await Response.fromStream(await _client.send(request));
     return response;
   }
 
   String? getErrorMessage(Response response) {
-    switch(response.statusCode)
-      {
-        case 200:
-          return null;
-        case 401:
-          return 'Access denied';
-        case 404:
-          return 'Connection lost';
-        default:
-          return 'Unknown error';
-      }
+    switch (response.statusCode) {
+      case 200:
+        return null;
+      case 401:
+        return 'Access denied';
+      case 404:
+        return 'Connection lost';
+      default:
+        return 'Unknown error';
+    }
   }
 
   void logOut() {

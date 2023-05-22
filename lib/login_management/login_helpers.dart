@@ -8,13 +8,9 @@ abstract class Validators {
     return null;
   }
 
-  static String? validateEmail(String? value) {
+  static String? validateLogin(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please, fill in the field';
-    }
-    if (!RegExp("^[a-zA-Z0-9.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*\$").
-          hasMatch(value)) {
-      return 'This is not valid email';
     }
     return null;
   }
@@ -23,14 +19,15 @@ abstract class Validators {
 abstract class Styles {
   static final ButtonStyle formButtonStyle = ButtonStyle(
     backgroundColor: MaterialStateProperty.resolveWith((states) {
-      if(states.contains(MaterialState.pressed)) {
+      if (states.contains(MaterialState.pressed)) {
         return Colors.orange[700];
       }
       return Colors.orange[900];
     }),
-    side: const MaterialStatePropertyAll(BorderSide(
-      color: Color(0xFFD94307),
-      width: 1.2,
+    side: const MaterialStatePropertyAll(
+      BorderSide(
+        color: Color(0xFFD94307),
+        width: 1.2,
       ),
     ),
   );

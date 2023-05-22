@@ -8,10 +8,15 @@ class CredentialsForm extends StatelessWidget {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
-  CredentialsForm({super.key, required this.sendDataFunc, required this.errorMsg, this.sendDataButtonText = 'Send', 
-                    this.initialEmail = '', this.initialPassword = ''}) {
-                      _email.text = initialEmail;
-                      _password.text = initialPassword;
+  CredentialsForm(
+      {super.key,
+      required this.sendDataFunc,
+      required this.errorMsg,
+      this.sendDataButtonText = 'Send',
+      this.initialEmail = '',
+      this.initialPassword = ''}) {
+    _email.text = initialEmail;
+    _password.text = initialPassword;
   }
   final String errorMsg;
   final void Function(String email, String password) sendDataFunc;
@@ -20,17 +25,15 @@ class CredentialsForm extends StatelessWidget {
   final String sendDataButtonText;
 
   void sendData() {
-    if(_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       sendDataFunc(_email.text, _password.text);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Form(
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Form(
           key: _formKey,
           child: AutofillGroup(
             child: Wrap(
@@ -38,14 +41,18 @@ class CredentialsForm extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: _email,
-                  validator: Validators.validateEmail,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z@.-]+'))],
+                  validator: Validators.validateLogin,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z@.-]+'))
+                  ],
                   autofillHints: const [AutofillHints.email],
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 5.0),
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                     border: const OutlineInputBorder(),
-                    labelText: 'Email address',
+                    labelText: 'Login',
                   ),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
@@ -57,13 +64,17 @@ class CredentialsForm extends StatelessWidget {
                   obscureText: true,
                   obscuringCharacter: '*',
                   validator: Validators.validatePassword,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]+'))],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]+'))
+                  ],
                   autofillHints: const [AutofillHints.password],
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 5.0),
+                    labelStyle:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                     border: const OutlineInputBorder(),
-                    labelText: 'Password',
+                    labelText: 'Hasło',
                   ),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
@@ -72,14 +83,18 @@ class CredentialsForm extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          )),
+      ElevatedButton(
+        onPressed: sendData,
+        style: Styles.formButtonStyle,
+        child: Text(sendDataButtonText),
+      ),
+      Text(
+        errorMsg,
+        style: const TextStyle(
+          color: Colors.red,
         ),
-        ElevatedButton(
-          onPressed: sendData,
-          style: Styles.formButtonStyle,
-          child: Text(sendDataButtonText),
-        ),
-        Text(errorMsg, style: const TextStyle(color: Colors.red,),),
+      ),
     ]);
   }
 }
