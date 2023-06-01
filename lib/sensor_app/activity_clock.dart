@@ -16,7 +16,7 @@ class ActivityClock extends StatefulWidget {
 }
 
 class _ActivityClockState extends State<ActivityClock> {
-  Duration _duration = Duration();
+  Duration _duration = const Duration();
   Timer? timer;
   bool loading = true;
 
@@ -29,12 +29,13 @@ class _ActivityClockState extends State<ActivityClock> {
   void _loadTimerState() async {
     try {
       var activityState = await widget.activityClient.getActiveActivity();
-      Duration duration = Duration();
+      Duration duration = const Duration();
       if (activityState != null) {
         duration = DateTimeHelpers().getDurationFromNow(
             activityState.start_at, activityState.currentTime);
         _runTimer();
       } else {
+        widget.sensorClient.changeTimerState(false);
         widget.sensorClient.stopMeasurements();
       }
       setState(() {
@@ -51,6 +52,7 @@ class _ActivityClockState extends State<ActivityClock> {
 
   void _runTimer() {
     widget.sensorClient.startMeasurements();
+    widget.sensorClient.changeTimerState(true);
     timer = Timer.periodic(
         const Duration(seconds: 1),
         (_) => setState(() {
@@ -74,6 +76,7 @@ class _ActivityClockState extends State<ActivityClock> {
   void _stopTimer() async {
     try {
       await widget.activityClient.stopActivity();
+      widget.sensorClient.changeTimerState(false);
       widget.sensorClient.stopMeasurements();
       setState(() {
         timer?.cancel();
@@ -147,9 +150,9 @@ class _ActivityClockState extends State<ActivityClock> {
   Widget _buildButtons() {
     final isRunning = timer == null ? false : timer!.isActive;
     if (loading) {
-      return const Column(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: const [
           Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text('Trwa wczytywanie zegara...')),

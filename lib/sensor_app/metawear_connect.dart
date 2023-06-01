@@ -17,7 +17,7 @@ class _MetawearConnectState extends State<MetawearConnect> {
   @override
   void initState() {
     super.initState();
-    widget.sensorClient.addBleScanResultHadnler(handleBleScanResults);
+    widget.sensorClient.addBleScanResultHandler(handleBleScanResults);
     widget.sensorClient.addConnectedHandler(handleConnect);
     widget.sensorClient.scanBle();
   }
@@ -25,7 +25,7 @@ class _MetawearConnectState extends State<MetawearConnect> {
   @override
   void dispose() {
     super.dispose();
-    widget.sensorClient.removeBleScanResultHadnler(handleBleScanResults);
+    widget.sensorClient.removeBleScanResultHandler(handleBleScanResults);
     widget.sensorClient.removeConnectedHandler(handleConnect);
   }
 
@@ -41,7 +41,7 @@ class _MetawearConnectState extends State<MetawearConnect> {
     Navigator.of(context).pop();
   }
 
-  void refreashDevices() {
+  void refreshDevices() {
     setState(() {
       _bleScanResults = null;
     });
@@ -67,8 +67,8 @@ class _MetawearConnectState extends State<MetawearConnect> {
   }
 
   Widget loadingDevicesWidget() {
-    return const Column(
-      children: [
+    return Column(
+      children: const [
         Padding(
             padding: EdgeInsets.only(bottom: 16.0),
             child: Text('Trwa wczytywanie urządzeń...')),
@@ -95,7 +95,7 @@ class _MetawearConnectState extends State<MetawearConnect> {
         margin: const EdgeInsets.all(16),
         child: const Text('Nie znaleziono urządzeń MetaWear'),
       ),
-      ElevatedButton(onPressed: refreashDevices, child: const Text('Odśwież')),
+      ElevatedButton(onPressed: refreshDevices, child: const Text('Odśwież')),
     ]));
   }
 

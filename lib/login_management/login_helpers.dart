@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 abstract class Validators {
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please, fill in the field';
+      return 'Pole nie może być puste';
     }
     return null;
   }
 
   static String? validateLogin(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please, fill in the field';
+      return 'Pole nie może być puste';
     }
     return null;
   }

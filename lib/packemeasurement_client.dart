@@ -60,7 +60,7 @@ class PackedMeasurementsDto {
 }
 
 class PackedMeasurementClient {
-  TokenClient _tokenClient;
+  final TokenClient _tokenClient;
   PackedMeasurementClient(this._tokenClient);
 
   Future<String> getMeasurement(

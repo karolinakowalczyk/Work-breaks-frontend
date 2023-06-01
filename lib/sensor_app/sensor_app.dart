@@ -34,8 +34,8 @@ class _SensorAppState extends State<SensorApp> {
   void initState() {
     super.initState();
     widget.sensorClient.addConnectedHandler(handleDeviceConnected);
-    widget.sensorClient.addDisconnectedHanlder(handleDeviceDisconnected);
-    widget.sensorClient.addConnectFailureHanlder(handleDeviceConnectFailuer);
+    widget.sensorClient.addDisconnectedHandler(handleDeviceDisconnected);
+    widget.sensorClient.addConnectFailureHandler(handleDeviceConnectFailuer);
     _deviceConnected = widget.sensorClient.isDeviceConnected();
   }
 
@@ -44,7 +44,7 @@ class _SensorAppState extends State<SensorApp> {
     super.dispose();
     widget.sensorClient.removeConnectedHandler(handleDeviceConnected);
     widget.sensorClient.removeConnectedHandler(handleDeviceDisconnected);
-    widget.sensorClient.removeConnectFailureHanlder(handleDeviceConnectFailuer);
+    widget.sensorClient.removeConnectFailureHandler(handleDeviceConnectFailuer);
   }
 
   void handleDeviceConnected(String mac) {
@@ -104,13 +104,13 @@ class _SensorAppState extends State<SensorApp> {
                 backgroundColor: Styles.navigationRailColor,
                 destinations: const [
                   NavigationRailDestination(
-                    icon: Icon(Icons.graphic_eq,
+                    icon: Icon(Icons.sensors,
                         color: Styles.navigationIconColor),
-                    label: Text('Sensors'),
+                    label: Text('Czujniki'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.logout, color: Styles.navigationIconColor),
-                    label: Text('Log out'),
+                    label: Text('Wyloguj'),
                   ),
                 ],
                 selectedIndex: _selectedIndex,

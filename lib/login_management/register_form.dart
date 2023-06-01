@@ -23,7 +23,7 @@ class RegisterForm extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Please input your data', style: Styles.informationStyle,),
+        const Text('Wprowadź wymagane dane', style: Styles.informationStyle,),
         const SizedBox(height: 5.0,),
         form,
     ]);

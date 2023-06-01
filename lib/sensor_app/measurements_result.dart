@@ -22,15 +22,15 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
   @override
   void initState() {
     super.initState();
-    widget.sensorClient.addPutAccelHanlder(handlePutAccel);
-    widget.sensorClient.addPutGyroHanlder(handlePutGyro);
+    widget.sensorClient.addPutAccelHandler(handlePutAccel);
+    widget.sensorClient.addPutGyroHandler(handlePutGyro);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.sensorClient.removePutAccelHanlder(handlePutAccel);
-    widget.sensorClient.removePutGyroHanlder(handlePutGyro);
+    widget.sensorClient.removePutAccelHandler(handlePutAccel);
+    widget.sensorClient.removePutGyroHandler(handlePutGyro);
   }
 
   void handlePutAccel(int timestamp, CoordinatesDto coordinates) {

@@ -12,7 +12,7 @@ class CredentialsForm extends StatelessWidget {
       {super.key,
       required this.sendDataFunc,
       required this.errorMsg,
-      this.sendDataButtonText = 'Send',
+      this.sendDataButtonText = 'Wyślij',
       this.initialEmail = '',
       this.initialPassword = ''}) {
     _email.text = initialEmail;

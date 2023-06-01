@@ -45,11 +45,11 @@ class TokenClient {
       case 200:
         return null;
       case 401:
-        return 'Access denied';
+        return 'Błąd autoryzacji';
       case 404:
-        return 'Connection lost';
+        return 'Nie znaleziono zasobu';
       default:
-        return 'Unknown error';
+        return 'Nieznany błąd';
     }
   }
 

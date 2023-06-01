@@ -23,11 +23,12 @@ class CoordinatesDto {
 class SensorClient {
   static const metawearPlatform =
       MethodChannel('com.example.ppiwd_work_breaks_frontend/metawear');
-  String? _connectedDeviceMac = null;
+  String? _connectedDeviceMac;
+  bool _timerRunning = false;
 
   final List<Function(String mac)> _connectedHandlers = [];
   final List<Function(String mac)> _disconnectedHandlers = [];
-  final List<Function(List<BleScanResult> scanResults)> _bleScanResultHadnlers =
+  final List<Function(List<BleScanResult> scanResults)> _bleScanResultHandlers =
       [];
   final List<Function(String mac)> _connectFailureHandlers = [];
   final List<Function(int timestamp, CoordinatesDto coordinates)>
@@ -39,6 +40,10 @@ class SensorClient {
     metawearPlatform.setMethodCallHandler(metaWearCallback);
   }
 
+  void changeTimerState(bool isRunning) {
+    _timerRunning = isRunning;
+  }
+
   void addConnectedHandler(Function(String mac) connectHandler) {
     _connectedHandlers.add(connectHandler);
   }
@@ -47,7 +52,7 @@ class SensorClient {
     _connectedHandlers.removeWhere((element) => element == connectHandler);
   }
 
-  void addDisconnectedHanlder(Function(String mac) disconnectHandler) {
+  void addDisconnectedHandler(Function(String mac) disconnectHandler) {
     _connectedHandlers.add(disconnectHandler);
   }
 
@@ -55,42 +60,42 @@ class SensorClient {
     _connectedHandlers.removeWhere((element) => element == disconnectHandler);
   }
 
-  void addBleScanResultHadnler(
+  void addBleScanResultHandler(
       Function(List<BleScanResult> scanResults) scanResultHandler) {
-    _bleScanResultHadnlers.add(scanResultHandler);
+    _bleScanResultHandlers.add(scanResultHandler);
   }
 
-  void removeBleScanResultHadnler(
+  void removeBleScanResultHandler(
       Function(List<BleScanResult> scanResults) scanResultHandler) {
-    _bleScanResultHadnlers
+    _bleScanResultHandlers
         .removeWhere((element) => element == scanResultHandler);
   }
 
-  void addConnectFailureHanlder(Function(String mac) connectFailureHandler) {
+  void addConnectFailureHandler(Function(String mac) connectFailureHandler) {
     _connectFailureHandlers.add(connectFailureHandler);
   }
 
-  void removeConnectFailureHanlder(Function(String mac) connectFailureHandler) {
+  void removeConnectFailureHandler(Function(String mac) connectFailureHandler) {
     _connectFailureHandlers
         .removeWhere((element) => element == connectFailureHandler);
   }
 
-  void addPutAccelHanlder(
+  void addPutAccelHandler(
       Function(int timestamp, CoordinatesDto coordinates) putAccelHandler) {
     _putAccelHandlers.add(putAccelHandler);
   }
 
-  void removePutAccelHanlder(
+  void removePutAccelHandler(
       Function(int timestamp, CoordinatesDto coordinates) putAccelHandler) {
     _putAccelHandlers.removeWhere((element) => element == putAccelHandler);
   }
 
-  void addPutGyroHanlder(
+  void addPutGyroHandler(
       Function(int timestamp, CoordinatesDto coordinates) putGyroHandler) {
     _putGyroHandlers.add(putGyroHandler);
   }
 
-  void removePutGyroHanlder(
+  void removePutGyroHandler(
       Function(int timestamp, CoordinatesDto coordinates) putGyroHandler) {
     _putGyroHandlers.removeWhere((element) => element == putGyroHandler);
   }
@@ -120,7 +125,7 @@ class SensorClient {
           developer.log('device: ${value['name']} [${value['mac']}]',
               name: 'ppiwd/ble');
         });
-        for (var bleScanResultHandler in _bleScanResultHadnlers) {
+        for (var bleScanResultHandler in _bleScanResultHandlers) {
           bleScanResultHandler(scanResults);
         }
         break;
@@ -157,6 +162,9 @@ class SensorClient {
   void connectMetaWear(String mac) async {
     try {
       await metawearPlatform.invokeMethod("connect", {'mac': mac});
+      if(_timerRunning) {
+        startMeasurements();
+      }
     } on PlatformException catch (e) {
       developer.log('failed to connect: ${e.message}');
     }

@@ -8,7 +8,7 @@ class LoginForm extends StatelessWidget {
     form = CredentialsForm(
       errorMsg: errorMsg,
       sendDataFunc: _login,
-      sendDataButtonText: 'Login',
+      sendDataButtonText: 'Zaloguj',
       initialEmail: initialEmail,
       initialPassword: initialPassword,
     );
@@ -29,13 +29,13 @@ class LoginForm extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Please log in to continue', style: Styles.informationStyle,),
+        const Text('Zaloguj się, aby kontynuować', style: Styles.informationStyle,),
         const SizedBox(height: 5.0,),
         form,
         TextButton(
           onPressed: navigate,
           child: Text(
-            'Register instead',
+            'Nie masz konta?',
             style: TextStyle(
               decoration: TextDecoration.underline,
               decorationColor: Theme.of(context).primaryColor,
