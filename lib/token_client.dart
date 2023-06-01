@@ -48,6 +48,8 @@ class TokenClient {
         return 'Błąd autoryzacji';
       case 404:
         return 'Nie znaleziono zasobu';
+      case 503:
+        return 'Usługa niedostępna';
       default:
         return 'Nieznany błąd';
     }

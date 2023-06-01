@@ -55,7 +55,7 @@ class PackedMeasurementsDto {
   }
 
   Map<String, dynamic> toJson() {
-    return {'data': data.map((entry) => entry.toJson())};
+    return {'data': List<dynamic>.from(data.map((entry) => entry.toJson()))};
   }
 }
 

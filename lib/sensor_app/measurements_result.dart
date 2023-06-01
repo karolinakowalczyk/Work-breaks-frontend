@@ -47,9 +47,9 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
       if (packedMeasurements.isProperLength()) {
         developer.log('sending: [${packedMeasurements.toJson().toString()}]}',
             name: 'ppiwd/measurements');
-        //todo cos nie dziala
-        //var measurement =
-        //    widget.packedMeasurementClient.getMeasurement(packedMeasurements);
+        //todo test with ml endpoints up
+        var measurement =
+            widget.packedMeasurementClient.getMeasurement(packedMeasurements);
         packedMeasurements.clear();
         currentMeasurement = null;
       }
