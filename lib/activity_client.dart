@@ -20,7 +20,7 @@ class ActivityClient {
   ActivityClient(this._tokenClient);
 
   Future<TimerDTO> startActivity() async {
-    var request = Request('GET', Uri.parse('$hostAddress/start'));
+    var request = Request('GET', Uri.parse('$hostAddress/timer/start'));
     Response response = await _tokenClient.send(request);
     if (response.statusCode != 200) {
       throw Exception(_tokenClient.getErrorMessage(response));
@@ -30,7 +30,7 @@ class ActivityClient {
   }
 
   Future<TimerDTO> stopActivity() async {
-    var request = Request('GET', Uri.parse('$hostAddress/stop'));
+    var request = Request('GET', Uri.parse('$hostAddress/timer/stop'));
     Response response = await _tokenClient.send(request);
     if (response.statusCode != 200) {
       throw Exception(_tokenClient.getErrorMessage(response));
