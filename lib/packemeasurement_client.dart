@@ -43,11 +43,16 @@ class MeasurementDto {
 
 class PackedMeasurementsDto {
   static const PACKED_SIZE = 250;
+  static const CLEAR_INDEX = 100;
 
   List<MeasurementDto> data = [];
 
   void clear() {
-    data.clear();
+    if (data.length >= CLEAR_INDEX) {
+      data = [...data.sublist(CLEAR_INDEX)];
+    } else {
+      data = [];
+    }
   }
 
   void add(MeasurementDto measurement) {

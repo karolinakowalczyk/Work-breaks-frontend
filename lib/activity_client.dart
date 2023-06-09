@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
+import 'package:ppiwd_work_breaks_frontend/shared/page_dto.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../token_client.dart';
@@ -74,10 +75,39 @@ class ActivityClient {
     }
     if (response.statusCode == 200) {
       var body = jsonDecode(response.body);
-      var test = convertToTimerDTO(body);
-      return test;
+      return convertToTimerDTO(body);
     }
     throw Exception(_tokenClient.getErrorMessage(response));
+  }
+
+  Future<PageDto<TimerDTO>> getAllTimers(int page, int size) async {
+    var request = Request(
+        'GET',
+        Uri.parse(
+            '$hostAddress/timer?page=$page&size=$size&sort=startAt,desc'));
+    Response response = await _tokenClient.send(request);
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      return convertToPageTimerDto(body);
+    }
+    throw Exception(_tokenClient.getErrorMessage(response));
+  }
+
+  Future<ActivityDto> getNextActivity() async {
+    var request = Request('GET', Uri.parse('$hostAddress/activity/next'));
+    Response response = await _tokenClient.send(request);
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      return convertToActivityDto(body);
+    }
+    throw Exception(_tokenClient.getErrorMessage(response));
+  }
+
+  PageDto<TimerDTO> convertToPageTimerDto(dynamic json) {
+    var timers = (json['content'] as List<dynamic>)
+        .map((timer) => convertToTimerDTO(timer))
+        .toList();
+    return PageDto(timers, json['totalPages']);
   }
 
   TimerDTO convertToTimerDTO(dynamic json) {
