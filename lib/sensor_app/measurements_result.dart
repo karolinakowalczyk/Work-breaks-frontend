@@ -37,7 +37,7 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
     currentMeasurement = MeasurementDto(timestamp.toString(), coordinates);
   }
 
-  void handlePutGyro(int timestamp, CoordinatesDto coordinates) {
+  void handlePutGyro(int timestamp, CoordinatesDto coordinates) async {
     try {
       if (currentMeasurement == null) {
         return;
@@ -45,12 +45,11 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
       currentMeasurement!.setGyroscope(coordinates);
       packedMeasurements.add(currentMeasurement!);
       if (packedMeasurements.isProperLength()) {
-        developer.log('sending: [${packedMeasurements.toJson().toString()}]}',
-            name: 'ppiwd/measurements');
+        developer.log('sending');
         //todo test with ml endpoints up
-        var measurement =
-            widget.packedMeasurementClient.getMeasurement(packedMeasurements);
-        packedMeasurements.clear();
+        var measurement = await widget.packedMeasurementClient
+            .getMeasurement(packedMeasurements.getAndClear());
+        developer.log(measurement);
         currentMeasurement = null;
       }
     } catch (e) {

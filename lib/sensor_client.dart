@@ -18,6 +18,10 @@ class CoordinatesDto {
   Map<String, dynamic> toJson() {
     return {'x': x, 'y': y, 'z': z};
   }
+
+  CoordinatesDto clone() {
+    return CoordinatesDto(x, y, z);
+  }
 }
 
 class SensorClient {
@@ -119,6 +123,7 @@ class SensorClient {
         }
         break;
       case "putBleScanResult":
+        developer.log('result: ${(call.arguments as Map).length}');
         List<BleScanResult> scanResults = [];
         ((call.arguments) as Map).forEach((key, value) {
           scanResults.add(BleScanResult(value['mac'], value['name']));
@@ -162,7 +167,7 @@ class SensorClient {
   void connectMetaWear(String mac) async {
     try {
       await metawearPlatform.invokeMethod("connect", {'mac': mac});
-      if(_timerRunning) {
+      if (_timerRunning) {
         startMeasurements();
       }
     } on PlatformException catch (e) {
