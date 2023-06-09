@@ -42,7 +42,7 @@ class MeasurementDto {
 }
 
 class PackedMeasurementsDto {
-  static const PACKED_SIZE = 50;
+  static const PACKED_SIZE = 250;
 
   List<MeasurementDto> data = [];
 

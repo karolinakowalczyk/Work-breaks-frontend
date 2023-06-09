@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
 import 'package:ppiwd_work_breaks_frontend/packemeasurement_client.dart';
+import 'package:ppiwd_work_breaks_frontend/sensor_app/account_chart.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_app/measurements_result.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_client.dart';
 
@@ -66,6 +67,32 @@ class _SensorAppState extends State<SensorApp> {
 
   void handleDeviceDisconnected(String mac) {}
 
+  List<Widget> getClockWidget() {
+    return [
+      ActivityClock(
+        activityClient: widget.activityClient,
+        sensorClient: widget.sensorClient,
+      ),
+      MeasurementsResult(
+          sensorClient: widget.sensorClient,
+          packedMeasurementClient: widget.packedMeasurementClient)
+    ];
+  }
+
+  List<Widget> getChartWidget() {
+    return [AccountChart(activityClient: widget.activityClient)];
+  }
+
+  List<Widget> getActiveMenuComponent() {
+    switch (_selectedIndex) {
+      case 0:
+        return getClockWidget();
+      case 1:
+        return getChartWidget();
+    }
+    return [];
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_deviceConnected == false) {
@@ -89,13 +116,7 @@ class _SensorAppState extends State<SensorApp> {
             const SizedBox(
               height: 50,
             ),
-            ActivityClock(
-              activityClient: widget.activityClient,
-              sensorClient: widget.sensorClient,
-            ),
-            MeasurementsResult(
-                sensorClient: widget.sensorClient,
-                packedMeasurementClient: widget.packedMeasurementClient)
+            ...getActiveMenuComponent()
           ])),
           Container(
             color: Styles.navigationRailColor,
@@ -104,9 +125,14 @@ class _SensorAppState extends State<SensorApp> {
                 backgroundColor: Styles.navigationRailColor,
                 destinations: const [
                   NavigationRailDestination(
-                    icon: Icon(Icons.sensors,
-                        color: Styles.navigationIconColor),
+                    icon:
+                        Icon(Icons.sensors, color: Styles.navigationIconColor),
                     label: Text('Czujniki'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.area_chart,
+                        color: Styles.navigationIconColor),
+                    label: Text('Wykresy'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.logout, color: Styles.navigationIconColor),
@@ -115,7 +141,7 @@ class _SensorAppState extends State<SensorApp> {
                 ],
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: (value) {
-                  if (value == 1) {
+                  if (value == 2) {
                     widget.tokenClient.logOut();
                     widget.sensorClient.disconectMetaWear();
                     context.go('/');

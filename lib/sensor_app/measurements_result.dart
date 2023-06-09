@@ -46,7 +46,6 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
       packedMeasurements.add(currentMeasurement!);
       if (packedMeasurements.isProperLength()) {
         developer.log('sending');
-        //todo test with ml endpoints up
         var measurement = await widget.packedMeasurementClient
             .getMeasurement(packedMeasurements.getAndClear());
         developer.log(measurement);
