@@ -164,7 +164,7 @@ class _SensorAppState extends State<SensorApp> {
                   NavigationRailDestination(
                     icon: Icon(Icons.area_chart,
                         color: Styles.navigationIconColor),
-                    label: Text('Wykresy'),
+                    label: Text('Statystyka'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.logout, color: Styles.navigationIconColor),

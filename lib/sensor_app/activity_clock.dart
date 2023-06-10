@@ -59,10 +59,12 @@ class _ActivityClockState extends State<ActivityClock> {
         widget.sensorClient.changeTimerState(false);
         widget.sensorClient.stopMeasurements();
       }
-      setState(() {
-        loading = false;
-        _duration = duration;
-      });
+      if(mounted) {
+        setState(() {
+          loading = false;
+          _duration = duration;
+        });
+      }
     } catch (e) {
       var snackBar = const SnackBar(
         content: Text("Błąd api podczas wczytywania zegara"),
@@ -77,10 +79,14 @@ class _ActivityClockState extends State<ActivityClock> {
     widget.setIsTimerRunning(true);
     timer = Timer.periodic(
         const Duration(seconds: 1),
-        (_) => setState(() {
+        (_) => {
+          if(mounted) { 
+            setState(() {
               final seconds = _duration.inSeconds + 1;
               _duration = Duration(seconds: seconds);
-            }));
+            })
+          }
+        });
   }
 
   void _loadExerciseTypeState() async {
@@ -90,12 +96,14 @@ class _ActivityClockState extends State<ActivityClock> {
       var end = exerciseResponse.endAt;
       var current = exerciseResponse.currentTime;
       var difference = end.difference(start).inSeconds;
-      setState(() {
-        exerciseType = exerciseResponse.exercise;
-        exerciseSelected = true;
-        durationExercise = Duration(seconds: difference);
-        startExerciseTime = '${start.hour} : ${start.minute} : ${start.second}';
-      });
+      if(mounted) {
+        setState(() {
+          exerciseType = exerciseResponse.exercise;
+          exerciseSelected = true;
+          durationExercise = Duration(seconds: difference);
+          startExerciseTime = '${start.hour} : ${start.minute} : ${start.second}';
+        });
+      }
 
       //UNCOMMENT - only for show
       //var differenceFromNow = 10;
@@ -117,28 +125,32 @@ class _ActivityClockState extends State<ActivityClock> {
   }
 
   void _clearExerciseTypeState() {
-    setState(() {
-      exerciseType = ActivityType.noActivity;
-      exerciseSelected = false;
-      excerciseTimer?.cancel();
-      showDuringExerciseTimer = false;
-      startExerciseTime = '';
-    });
+    if(mounted) {
+      setState(() {
+        exerciseType = ActivityType.noActivity;
+        exerciseSelected = false;
+        excerciseTimer?.cancel();
+        showDuringExerciseTimer = false;
+        startExerciseTime = '';
+      });
+    }
   }
 
   void setCountDown() {
     const reduceSecondsBy = 1;
-    setState(() {
-      final seconds = durationExercise.inSeconds - reduceSecondsBy;
-      if (seconds < 0) {
-        showDuringExerciseTimer = false;
-        excerciseTimer!.cancel();
-        _clearExerciseTypeState();
-        _loadExerciseTypeState();
-      } else {
-        durationExercise = Duration(seconds: seconds);
-      }
-    });
+    if(mounted) {
+      setState(() {
+        final seconds = durationExercise.inSeconds - reduceSecondsBy;
+        if (seconds < 0) {
+          showDuringExerciseTimer = false;
+          excerciseTimer!.cancel();
+          _clearExerciseTypeState();
+          _loadExerciseTypeState();
+        } else {
+          durationExercise = Duration(seconds: seconds);
+        }
+      });
+    }
   }
 
   void _runDuringExcerciseTimer() {
@@ -171,10 +183,12 @@ class _ActivityClockState extends State<ActivityClock> {
       widget.setIsTimerRunning(false);
       widget.sensorClient.changeTimerState(false);
       widget.sensorClient.stopMeasurements();
-      setState(() {
-        timer?.cancel();
-        _duration = const Duration();
-      });
+      if(mounted) {
+        setState(() {
+          timer?.cancel();
+          _duration = const Duration();
+        });
+      }
       _clearExerciseTypeState();
     } catch (e) {
       var snackBar = const SnackBar(
@@ -253,9 +267,9 @@ class _ActivityClockState extends State<ActivityClock> {
   Widget _buildButtons() {
     final isRunning = timer == null ? false : timer!.isActive;
     if (loading) {
-      return const Column(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: const [
           Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text('Trwa wczytywanie zegara...')),

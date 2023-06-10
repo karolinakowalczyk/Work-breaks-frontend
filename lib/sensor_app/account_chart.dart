@@ -27,16 +27,20 @@ class _AccountChart extends State<AccountChart> {
   }
 
   void _loadTimers(page) async {
-    setState(() {
-      isLoading = true;
-    });
+    if(mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
     var response = await widget.activityClient.getAllTimers(page, PAGE_SIZE);
-    setState(() {
-      timers = response.content;
-      totalPages = response.totalPages;
-      currentPage = page;
-      isLoading = false;
-    });
+    if(mounted) {
+      setState(() {
+        timers = response.content;
+        totalPages = response.totalPages;
+        currentPage = page;
+        isLoading = false;
+      });
+    }
   }
 
   bool _isPrevEnabled() {
@@ -251,7 +255,7 @@ class _AccountChart extends State<AccountChart> {
     return Expanded(
         child: SingleChildScrollView(
             child: Container(
-                margin: EdgeInsets.all(10.0),
+                margin: const EdgeInsets.all(10.0),
                 child: Column(
                   children: [
                     _buildButtons(),

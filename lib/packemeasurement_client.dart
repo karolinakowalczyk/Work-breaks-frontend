@@ -83,9 +83,9 @@ class PackedMeasurementsDto {
 
   PackedMeasurementsDto clone() {
     var newPackedMeasurementsDto = PackedMeasurementsDto();
-    data.forEach((element) {
+    for (MeasurementDto element in data) {
       newPackedMeasurementsDto.add(element.clone());
-    });
+    }
     return newPackedMeasurementsDto;
   }
 
