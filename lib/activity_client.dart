@@ -14,7 +14,8 @@ enum ActivityType {
   forwardFolding,
   jumpingJacks,
   squats,
-  working
+  working,
+  noActivity
 }
 
 class TimerDTO {
@@ -70,7 +71,7 @@ class MeasurementDto {
 }
 
 class ActivityClient {
-  TokenClient _tokenClient;
+  final TokenClient _tokenClient;
   ActivityClient(this._tokenClient);
 
   Future<TimerDTO> startActivity() async {
@@ -167,6 +168,8 @@ class ActivityClient {
         return ActivityType.squats;
       case "WORKING":
         return ActivityType.working;
+      case "":
+        return ActivityType.noActivity;
       default:
         throw Exception("Invalid input: $type");
     }
