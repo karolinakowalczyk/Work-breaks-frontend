@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 // need to change to address of server
-String hostAddress = 'http://192.168.0.17:8080';
+String hostAddress = 'http://192.168.8.105:8080';
 
 class TokenClient {
   final _authorizationEndpoint = Uri.parse('$hostAddress/login');
