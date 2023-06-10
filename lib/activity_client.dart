@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
+import 'package:ppiwd_work_breaks_frontend/packemeasurement_client.dart';
 import 'package:ppiwd_work_breaks_frontend/shared/page_dto.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -25,6 +26,26 @@ class TimerDTO {
 
   TimerDTO(this.start_at, this.end_at, this.currentTime, this.activities,
       this.measurements);
+
+  Duration getWorkDuration() {
+    var to = end_at ?? DateTimeHelpers().now();
+    return to.difference(start_at);
+  }
+
+  Duration getMeasurementsDurationByActivity(ActivityType activityType) {
+    var measurementsLength = measurements
+        .where((measurement) => measurement.type == activityType)
+        .length;
+    return PackedMeasurementsDto.getPackageDuration() * measurementsLength;
+  }
+
+  Duration getPlanedActivitiesDurationByActivity(ActivityType activityType) {
+    return activities
+        .where((activity) => activity.exercise == activityType)
+        .map((activity) {
+      return activity.endAt.difference(activity.startAt);
+    }).reduce((activity1, activity2) => activity1 + activity2);
+  }
 }
 
 class ActivityDto {
@@ -158,5 +179,24 @@ class ActivityClient {
     return MeasurementDto(
         DateTimeHelpers().parseIsoDateTime(json['measuredAt']),
         convertToActivityType(json['type']));
+  }
+}
+
+String getActivityTypeName(ActivityType activityType) {
+  switch (activityType) {
+    case ActivityType.walking:
+      return 'Chodzenie';
+    case ActivityType.inPlaceRunning:
+      return 'Bieganie w miejscu';
+    case ActivityType.forwardFolding:
+      return 'Skłony w przód';
+    case ActivityType.jumpingJacks:
+      return 'Pajacyki';
+    case ActivityType.squats:
+      return 'Przysiady';
+    case ActivityType.working:
+      return 'Praca';
+    default:
+      return '';
   }
 }

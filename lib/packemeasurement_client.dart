@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
+import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_client.dart';
 import 'dart:developer' as developer;
-
 import '../token_client.dart';
 
 class ActivityResponseDto {
@@ -44,8 +43,14 @@ class MeasurementDto {
 class PackedMeasurementsDto {
   static const PACKED_SIZE = 250;
   static const CLEAR_INDEX = 100;
+  static const MEASUREMENTS_PER_SECOND = 50;
 
   List<MeasurementDto> data = [];
+
+  static Duration getPackageDuration() {
+    return Duration(
+        milliseconds: (CLEAR_INDEX / MEASUREMENTS_PER_SECOND * 1000).toInt());
+  }
 
   void clear() {
     if (data.length >= CLEAR_INDEX) {

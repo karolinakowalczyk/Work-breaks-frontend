@@ -19,4 +19,8 @@ class DateTimeHelpers {
 
     return currentDateTime.difference(adjustedDateTime);
   }
+
+  tz.TZDateTime now() {
+    return tz.TZDateTime.now(location);
+  }
 }

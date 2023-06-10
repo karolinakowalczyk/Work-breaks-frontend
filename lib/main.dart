@@ -8,10 +8,13 @@ import 'package:ppiwd_work_breaks_frontend/token_client.dart';
 import 'login_management/login_page.dart';
 import 'sensor_app/sensor_app.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
   tz.initializeTimeZones();
-  runApp(const MyApp());
+  initializeDateFormatting('pl_PL', null).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatefulWidget {
