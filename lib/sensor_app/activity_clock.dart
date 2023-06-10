@@ -26,6 +26,12 @@ class _ActivityClockState extends State<ActivityClock> {
     _loadTimerState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+  }
+
   void _loadTimerState() async {
     try {
       var activityState = await widget.activityClient.getActiveActivity();

@@ -40,11 +40,16 @@ class TimerDTO {
   }
 
   Duration getPlanedActivitiesDurationByActivity(ActivityType activityType) {
-    return activities
+    var filteredActivities = activities
         .where((activity) => activity.exercise == activityType)
         .map((activity) {
       return activity.endAt.difference(activity.startAt);
-    }).reduce((activity1, activity2) => activity1 + activity2);
+    });
+    if (filteredActivities.isEmpty) {
+      return Duration.zero;
+    }
+    return filteredActivities
+        .reduce((activity1, activity2) => activity1 + activity2);
   }
 }
 
@@ -148,7 +153,7 @@ class ActivityClient {
         measurements);
   }
 
-  ActivityType convertToActivityType(String type) {
+  static ActivityType convertToActivityType(String type) {
     switch (type) {
       case "WALKING":
         return ActivityType.walking;

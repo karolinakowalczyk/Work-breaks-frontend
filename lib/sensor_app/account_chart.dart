@@ -79,9 +79,12 @@ class _AccountChart extends State<AccountChart> {
   }
 
   String _getPlanedExercisesDuration(TimerDTO timerDTO) {
-    var duration = timerDTO.activities.map((activity) {
-      return activity.endAt.difference(activity.startAt);
-    }).reduce((activity1, activity2) => activity1 + activity2);
+    var duration = Duration.zero;
+    if (timerDTO.activities.isNotEmpty) {
+      duration = timerDTO.activities.map((activity) {
+        return activity.endAt.difference(activity.startAt);
+      }).reduce((activity1, activity2) => activity1 + activity2);
+    }
     return _formatDuration(duration);
   }
 

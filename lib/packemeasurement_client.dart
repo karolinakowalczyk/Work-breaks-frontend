@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
+import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_client.dart';
 import 'dart:developer' as developer;
 import '../token_client.dart';
+import 'package:timezone/timezone.dart' as tz;
 
-class ActivityResponseDto {
-  String type;
+class MeasurementResponseDto {
+  tz.TZDateTime measuredAt;
+  ActivityType type;
 
-  ActivityResponseDto(this.type);
+  MeasurementResponseDto(this.measuredAt, this.type);
 }
 
 class MeasurementDto {
@@ -42,7 +45,7 @@ class MeasurementDto {
 
 class PackedMeasurementsDto {
   static const PACKED_SIZE = 250;
-  static const CLEAR_INDEX = 100;
+  static const CLEAR_INDEX = 250;
   static const MEASUREMENTS_PER_SECOND = 50;
 
   List<MeasurementDto> data = [];
@@ -96,7 +99,7 @@ class PackedMeasurementClient {
   final TokenClient _tokenClient;
   PackedMeasurementClient(this._tokenClient);
 
-  Future<String> getMeasurement(
+  Future<MeasurementResponseDto> getMeasurement(
       PackedMeasurementsDto packedMeasurements) async {
     var request = Request('POST', Uri.parse('$hostAddress/measurement'));
     developer.log(packedMeasurements.toString());
@@ -106,10 +109,12 @@ class PackedMeasurementClient {
       throw Exception(_tokenClient.getErrorMessage(response));
     }
     var json = jsonDecode(response.body);
-    return json['type'];
+    return convertToActivityResponseDto(json);
   }
 
-  ActivityResponseDto convertToActivityResponseDto(dynamic json) {
-    return ActivityResponseDto(json['type']);
+  MeasurementResponseDto convertToActivityResponseDto(dynamic json) {
+    return MeasurementResponseDto(
+        DateTimeHelpers().parseIsoDateTime(json['measuredAt']),
+        ActivityClient.convertToActivityType(json['type']));
   }
 }

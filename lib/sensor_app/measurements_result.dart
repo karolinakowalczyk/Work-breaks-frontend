@@ -48,7 +48,7 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
         developer.log('sending');
         var measurement = await widget.packedMeasurementClient
             .getMeasurement(packedMeasurements.getAndClear());
-        developer.log(measurement);
+        developer.log(measurement.type.name);
         currentMeasurement = null;
       }
     } catch (e) {
