@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
 import 'package:ppiwd_work_breaks_frontend/packemeasurement_client.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 class AccountChart extends StatefulWidget {
   const AccountChart({super.key, required this.activityClient});

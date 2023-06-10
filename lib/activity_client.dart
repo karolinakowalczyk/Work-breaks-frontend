@@ -8,16 +8,6 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../token_client.dart';
 
-enum ActivityType {
-  walking,
-  inPlaceRunning,
-  forwardFolding,
-  jumpingJacks,
-  squats,
-  working,
-  noActivity
-}
-
 class TimerDTO {
   tz.TZDateTime start_at;
   tz.TZDateTime? end_at;
@@ -187,24 +177,5 @@ class ActivityClient {
     return MeasurementDto(
         DateTimeHelpers().parseIsoDateTime(json['measuredAt']),
         convertToActivityType(json['type']));
-  }
-}
-
-String getActivityTypeName(ActivityType activityType) {
-  switch (activityType) {
-    case ActivityType.walking:
-      return 'Chodzenie';
-    case ActivityType.inPlaceRunning:
-      return 'Bieganie w miejscu';
-    case ActivityType.forwardFolding:
-      return 'Skłony w przód';
-    case ActivityType.jumpingJacks:
-      return 'Pajacyki';
-    case ActivityType.squats:
-      return 'Przysiady';
-    case ActivityType.working:
-      return 'Praca';
-    default:
-      return '';
   }
 }

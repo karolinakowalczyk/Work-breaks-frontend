@@ -7,9 +7,11 @@ class MeasurementsResult extends StatefulWidget {
   const MeasurementsResult(
       {super.key,
       required this.sensorClient,
-      required this.packedMeasurementClient});
+      required this.packedMeasurementClient,
+      required this.isTimmerRunning});
   final SensorClient sensorClient;
   final PackedMeasurementClient packedMeasurementClient;
+  final bool isTimmerRunning;
 
   @override
   State<MeasurementsResult> createState() => _MeasurementsResultState();
@@ -18,6 +20,7 @@ class MeasurementsResult extends StatefulWidget {
 class _MeasurementsResultState extends State<MeasurementsResult> {
   MeasurementDto? currentMeasurement;
   PackedMeasurementsDto packedMeasurements = PackedMeasurementsDto();
+  ActivityType activityType = ActivityType.working;
 
   @override
   void initState() {
@@ -48,7 +51,9 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
         developer.log('sending');
         var measurement = await widget.packedMeasurementClient
             .getMeasurement(packedMeasurements.getAndClear());
-        developer.log(measurement.type.name);
+        setState(() {
+          activityType = measurement.type;
+        });
         currentMeasurement = null;
       }
     } catch (e) {
@@ -61,6 +66,14 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
 
   @override
   Widget build(BuildContext context) {
-    return Column();
+    return widget.isTimmerRunning
+        ? Column(
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                  "Obecnie wykonywana czynność: ${getActivityTypeName(activityType)}")
+            ],
+          )
+        : const Column();
   }
 }

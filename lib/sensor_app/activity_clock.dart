@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
 import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
+import 'package:ppiwd_work_breaks_frontend/packemeasurement_client.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_app/random_exercise.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_client.dart';
 import 'package:just_audio/just_audio.dart';
 
 class ActivityClock extends StatefulWidget {
   const ActivityClock(
-      {super.key, required this.sensorClient, required this.activityClient});
+      {super.key,
+      required this.sensorClient,
+      required this.activityClient,
+      required this.setIsTimerRunning});
   final SensorClient sensorClient;
   final ActivityClient activityClient;
+  final Function(bool isRunning) setIsTimerRunning;
 
   @override
   State<ActivityClock> createState() => _ActivityClockState();
@@ -39,6 +44,7 @@ class _ActivityClockState extends State<ActivityClock> {
   void dispose() {
     super.dispose();
     timer?.cancel();
+    excerciseTimer?.cancel();
   }
 
   void _loadTimerState() async {
@@ -68,6 +74,7 @@ class _ActivityClockState extends State<ActivityClock> {
   void _runTimer() {
     widget.sensorClient.startMeasurements();
     widget.sensorClient.changeTimerState(true);
+    widget.setIsTimerRunning(true);
     timer = Timer.periodic(
         const Duration(seconds: 1),
         (_) => setState(() {
@@ -161,6 +168,7 @@ class _ActivityClockState extends State<ActivityClock> {
   void _stopTimer() async {
     try {
       await widget.activityClient.stopActivity();
+      widget.setIsTimerRunning(false);
       widget.sensorClient.changeTimerState(false);
       widget.sensorClient.stopMeasurements();
       setState(() {

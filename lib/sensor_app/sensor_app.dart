@@ -30,6 +30,8 @@ class SensorApp extends StatefulWidget {
 class _SensorAppState extends State<SensorApp> {
   int _selectedIndex = 0;
   bool _deviceConnected = false;
+  bool _connectDeviceShown = false;
+  bool _isTimerRunning = false;
 
   @override
   void initState() {
@@ -67,15 +69,19 @@ class _SensorAppState extends State<SensorApp> {
 
   void handleDeviceDisconnected(String mac) {}
 
+  void setIsTimmerRunning(bool isRunning) {
+    setState(() {
+      _isTimerRunning = isRunning;
+    });
+  }
+
   List<Widget> getClockWidget() {
     return [
       ActivityClock(
         activityClient: widget.activityClient,
         sensorClient: widget.sensorClient,
-      ),
-      MeasurementsResult(
-          sensorClient: widget.sensorClient,
-          packedMeasurementClient: widget.packedMeasurementClient)
+        setIsTimerRunning: setIsTimmerRunning,
+      )
     ];
   }
 
@@ -95,7 +101,7 @@ class _SensorAppState extends State<SensorApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (_deviceConnected == false) {
+    if (!_deviceConnected && !_connectDeviceShown) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showModalBottomSheet<void>(
             context: context,
@@ -106,6 +112,9 @@ class _SensorAppState extends State<SensorApp> {
               );
             });
       });
+      setState(
+        () => _connectDeviceShown = true,
+      );
     }
     return Scaffold(
       backgroundColor: Colors.orange[50],
@@ -116,7 +125,11 @@ class _SensorAppState extends State<SensorApp> {
             const SizedBox(
               height: 50,
             ),
-            ...getActiveMenuComponent()
+            ...getActiveMenuComponent(),
+            MeasurementsResult(
+                sensorClient: widget.sensorClient,
+                packedMeasurementClient: widget.packedMeasurementClient,
+                isTimmerRunning: _isTimerRunning),
           ])),
           Container(
             color: Styles.navigationRailColor,
