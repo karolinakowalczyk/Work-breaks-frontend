@@ -253,9 +253,9 @@ class _ActivityClockState extends State<ActivityClock> {
   Widget _buildButtons() {
     final isRunning = timer == null ? false : timer!.isActive;
     if (loading) {
-      return Column(
+      return const Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text('Trwa wczytywanie zegara...')),

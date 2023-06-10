@@ -75,6 +75,25 @@ class _SensorAppState extends State<SensorApp> {
     });
   }
 
+  void _handleMenuDestinationSelection(int value) {
+    if (_isTimerRunning) {
+      var snackBar = const SnackBar(
+        content: Text("Wyłącz timer przed zmianą widoku"),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+    if (value == 2) {
+      widget.tokenClient.logOut();
+      widget.sensorClient.disconectMetaWear();
+      context.go('/');
+      return;
+    }
+    setState(() {
+      _selectedIndex = value;
+    });
+  }
+
   List<Widget> getClockWidget() {
     return [
       ActivityClock(
@@ -153,17 +172,7 @@ class _SensorAppState extends State<SensorApp> {
                   ),
                 ],
                 selectedIndex: _selectedIndex,
-                onDestinationSelected: (value) {
-                  if (value == 2) {
-                    widget.tokenClient.logOut();
-                    widget.sensorClient.disconectMetaWear();
-                    context.go('/');
-                    return;
-                  }
-                  setState(() {
-                    _selectedIndex = value;
-                  });
-                },
+                onDestinationSelected: _handleMenuDestinationSelection,
               ),
             ),
           ),
