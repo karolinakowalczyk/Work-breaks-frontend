@@ -143,7 +143,30 @@ String getActivityTypeName(ActivityType activityType) {
       return 'Przysiady';
     case ActivityType.working:
       return 'Praca';
+    case ActivityType.noActivity:
+      return 'Brak aktywności';
     default:
       return '';
   }
+}
+
+List<ActivityType> getMeasurableActivityTypes() {
+  return [
+    ActivityType.walking,
+    ActivityType.inPlaceRunning,
+    ActivityType.forwardFolding,
+    ActivityType.jumpingJacks,
+    ActivityType.squats,
+    ActivityType.working
+  ];
+}
+
+List<ActivityType> getExerciseActivityTypes() {
+  return [
+    ActivityType.walking,
+    ActivityType.inPlaceRunning,
+    ActivityType.forwardFolding,
+    ActivityType.jumpingJacks,
+    ActivityType.squats
+  ];
 }

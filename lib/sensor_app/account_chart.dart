@@ -87,77 +87,30 @@ class _AccountChart extends State<AccountChart> {
   }
 
   Widget _buildTimeDistributionChart(TimerDTO timerDTO) {
-    var activityTypesChartValues = ActivityType.values.map((activityType) {
+    var activityTypesChartValues =
+        getMeasurableActivityTypes().map((activityType) {
       var duration = timerDTO.getMeasurementsDurationByActivity(activityType);
 
       return DistributionTimeChartData(getActivityTypeName(activityType),
           duration.inSeconds, _formatDuration(duration));
     }).toList();
-    return SfCartesianChart(
-        primaryXAxis: CategoryAxis(
-          labelRotation: 45,
-        ),
-        onDataLabelRender: (DataLabelRenderArgs args) {
-          args.text =
-              activityTypesChartValues[args.pointIndex ?? 0].durationString;
-        },
-        series: <ChartSeries<DistributionTimeChartData, String>>[
-          ColumnSeries<DistributionTimeChartData, String>(
-              width: 0.4,
-              dataSource: activityTypesChartValues,
-              xValueMapper: (DistributionTimeChartData data, _) => data.name,
-              yValueMapper: (DistributionTimeChartData data, _) => data.value,
-              color: Colors.green,
-              dataLabelSettings: const DataLabelSettings(
-                isVisible: true,
-                textStyle: TextStyle(
-                  color: Colors.black, // Set the label text color
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ))
-        ]);
+    return _buildChart(activityTypesChartValues, Colors.green);
   }
 
   Widget _buildActivityDistributionChart(TimerDTO timerDTO) {
-    var activityTypesChartValues = ActivityType.values
-        .where((activityType) => activityType != ActivityType.working)
-        .map((activityType) {
+    var activityTypesChartValues =
+        getExerciseActivityTypes().map((activityType) {
       var duration =
           timerDTO.getPlanedActivitiesDurationByActivity(activityType);
       return DistributionTimeChartData(getActivityTypeName(activityType),
           duration.inSeconds, _formatDuration(duration));
     }).toList();
-    return SfCartesianChart(
-        primaryXAxis: CategoryAxis(
-          labelRotation: 45,
-        ),
-        onDataLabelRender: (DataLabelRenderArgs args) {
-          args.text =
-              activityTypesChartValues[args.pointIndex ?? 0].durationString;
-        },
-        series: <ChartSeries<DistributionTimeChartData, String>>[
-          ColumnSeries<DistributionTimeChartData, String>(
-              width: 0.4,
-              dataSource: activityTypesChartValues,
-              xValueMapper: (DistributionTimeChartData data, _) => data.name,
-              yValueMapper: (DistributionTimeChartData data, _) => data.value,
-              color: Colors.amber,
-              dataLabelSettings: const DataLabelSettings(
-                isVisible: true,
-                textStyle: TextStyle(
-                  color: Colors.black, // Set the label text color
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ))
-        ]);
+    return _buildChart(activityTypesChartValues, Colors.amber);
   }
 
   Widget _buildTimeVsActivityDistributionChart(TimerDTO timerDTO) {
-    var activityTypesChartValues = ActivityType.values
-        .where((activityType) => activityType != ActivityType.working)
-        .map((activityType) {
+    var activityTypesChartValues =
+        getExerciseActivityTypes().map((activityType) {
       var measuredDuration =
           timerDTO.getMeasurementsDurationByActivity(activityType);
       var planedExercisesDuration =
@@ -166,21 +119,25 @@ class _AccountChart extends State<AccountChart> {
       return DistributionTimeChartData(getActivityTypeName(activityType),
           duration.inSeconds, _formatDuration(duration));
     }).toList();
+    return _buildChart(activityTypesChartValues, Colors.cyanAccent);
+  }
+
+  Widget _buildChart(
+      List<DistributionTimeChartData> chartData, Color columnColor) {
     return SfCartesianChart(
         primaryXAxis: CategoryAxis(
           labelRotation: 45,
         ),
         onDataLabelRender: (DataLabelRenderArgs args) {
-          args.text =
-              activityTypesChartValues[args.pointIndex ?? 0].durationString;
+          args.text = chartData[args.pointIndex ?? 0].durationString;
         },
         series: <ChartSeries<DistributionTimeChartData, String>>[
           ColumnSeries<DistributionTimeChartData, String>(
               width: 0.4,
-              dataSource: activityTypesChartValues,
+              dataSource: chartData,
               xValueMapper: (DistributionTimeChartData data, _) => data.name,
               yValueMapper: (DistributionTimeChartData data, _) => data.value,
-              color: Colors.cyanAccent,
+              color: columnColor,
               dataLabelSettings: const DataLabelSettings(
                 isVisible: true,
                 textStyle: TextStyle(
