@@ -5,7 +5,7 @@ import 'package:ppiwd_work_breaks_frontend/activity_client.dart';
 import 'package:ppiwd_work_breaks_frontend/datetime_helpers.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_app/random_exercise.dart';
 import 'package:ppiwd_work_breaks_frontend/sensor_client.dart';
-import 'dart:developer' as developer;
+import 'package:just_audio/just_audio.dart';
 
 class ActivityClock extends StatefulWidget {
   const ActivityClock(
@@ -22,12 +22,12 @@ class _ActivityClockState extends State<ActivityClock> {
   Timer? timer;
   bool loading = true;
   Duration durationExercise = const Duration();
-  //String exerciseType = '';
   ActivityType exerciseType = ActivityType.noActivity;
   bool exerciseSelected = false;
   Timer? excerciseTimer;
   bool showDuringExerciseTimer = false;
   String startExerciseTime = '';
+  final player = AudioPlayer();
 
   @override
   void initState() {
@@ -70,28 +70,13 @@ class _ActivityClockState extends State<ActivityClock> {
             }));
   }
 
-  // void _tempLoadExerciseType() async {
-  //   try {
-  //     var exerciseResponse = await widget.activityClient.getNextActivity();
-  //   } catch (e) {
-  //     var snackBar = const SnackBar(
-  //       content: Text("Błąd api podczas losowania ćwiczenia TEMP"),
-  //     );
-  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  //   }
-  // }
-
   void _loadExerciseTypeState() async {
     try {
-      //var exerciseResponse = await widget.activityClient.getExercise();
       var exerciseResponse = await widget.activityClient.getNextActivity();
       var start = exerciseResponse.startAt;
       var end = exerciseResponse.endAt;
       var current = exerciseResponse.currentTime;
       var difference = end.difference(start).inSeconds;
-      developer.log('DIFFERENCE: $difference');
-      var now = DateTime.now();
-      developer.log('date time $now');
       setState(() {
         exerciseType = exerciseResponse.exercise;
         exerciseSelected = true;
@@ -102,16 +87,15 @@ class _ActivityClockState extends State<ActivityClock> {
       //UNCOMMENT - only for show
       //var differenceFromNow = 10;
       var differenceFromNow = start.difference(current).inSeconds;
-      developer.log('DIFFERENCE from now: $differenceFromNow');
       Future.delayed(Duration(seconds: differenceFromNow - 5), () {
         _playRemindingSound();
       });
       Future.delayed(Duration(seconds: differenceFromNow), () {
         showDuringExerciseTimer = true;
+        player.stop();
         _runDuringExcerciseTimer();
       });
     } catch (e) {
-      developer.log('error $e');
       var snackBar = const SnackBar(
         content: Text("Błąd api podczas losowania ćwiczenia"),
       );
@@ -150,18 +134,15 @@ class _ActivityClockState extends State<ActivityClock> {
   }
 
   void _playRemindingSound() async {
-    // developer.log("before PLAYED");
-    // const path = 'assets/audio/start.mp3';
-    // final player = AudioPlayer();
-    // await player.play(AssetSource(path));
-    developer.log("PLAYED");
+    await player.setAudioSource(AudioSource.uri(
+        Uri.parse("https://www.soundjay.com/buttons/sounds/beep-08b.mp3")));
+    player.play();
   }
 
   void _startTimer() async {
     try {
       await widget.activityClient.startActivity();
       _runTimer();
-      //_tempLoadExerciseType();
       _loadExerciseTypeState();
     } catch (e) {
       var snackBar = const SnackBar(
