@@ -74,6 +74,6 @@ class _MeasurementsResultState extends State<MeasurementsResult> {
                   "Obecnie wykonywana czynność: ${getActivityTypeName(activityType)}")
             ],
           )
-        : const Column();
+        : Column();
   }
 }
