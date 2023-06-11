@@ -55,7 +55,7 @@ class MeasurementDto {
 
 class PackedMeasurementsDto {
   static const PACKED_SIZE = 250;
-  static const CLEAR_INDEX = 250;
+  static const CLEAR_INDEX = 150;
   static const MEASUREMENTS_PER_SECOND = 50;
 
   List<MeasurementDto> data = [];
